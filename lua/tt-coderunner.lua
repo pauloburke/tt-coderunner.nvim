@@ -53,9 +53,7 @@ function M.run_in_terminal(term_num, conf)
         return
     end
 
-    -- Use :<term_num>ToggleTerm to execute the command
-    vim.cmd(term_num .. "ToggleTerm")
-    vim.cmd("TermExec cmd='" .. command .. "'")
+    vim.cmd(term_num .. "TermExec cmd='" .. command .. "'")
 end
 
 --- Run the current file in the last active terminal
