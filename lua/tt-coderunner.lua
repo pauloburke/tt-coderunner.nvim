@@ -1,10 +1,17 @@
+--- Configuration for tt-coderunner
 local config = {
     save_first = true,
+    code_runner = {
+        py = "python3",
+        sh = "bash",
+        lua = "lua",
+    },
 }
 
 local M = {}
 
-
+--- Get the path to the current file
+--- @return (string | nil) file_path The path to the file
 local function get_file_path()
     local file_path = vim.fn.expand("%:p")
     if not file_path or file_path == "" then
@@ -14,30 +21,34 @@ local function get_file_path()
     return file_path
 end
 
-local function get_run_command(file_path)
+---@param file_path string The path to the file
+---@param conf table The configuration for tt-coderunner
+---@return (string | nil) command The command to run the file
+local function get_run_command(file_path, conf)
     local extension = file_path:match("%.([^.]+)$")
-    if extension == "py" then
-        return "python3 " .. file_path
-    elseif extension == "sh" then
-        return "bash " .. file_path
+    if conf.code_runner[extension] then
+        return conf.code_runner[extension] .. " " .. file_path
     else
         vim.notify("Unsupported file type: " .. (extension or "unknown"), vim.log.levels.ERROR)
         return nil
     end
 end
 
-function M.run_in_terminal(term_num, save_first)
+--- Run the current file in a specified terminal
+---@param term_num number The terminal number to run the command in
+---@param conf table The configuration for tt-coderunner
+function M.run_in_terminal(term_num, conf)
     local file_path = get_file_path()
     if not file_path then
         return
     end
 
     -- Save the current buffer
-    if save_first then
+    if conf.save_first then
         vim.cmd("w")
     end
 
-    local command = get_run_command(file_path)
+    local command = get_run_command(file_path, conf)
     if not command then
         return
     end
@@ -47,18 +58,20 @@ function M.run_in_terminal(term_num, save_first)
     vim.cmd("TermExec cmd='" .. command .. "'")
 end
 
-function M.run_in_last_terminal(save_first)
+--- Run the current file in the last active terminal
+--- @param conf table The configuration for tt-coderunner
+function M.run_in_last_terminal(conf)
     local file_path = get_file_path()
     if not file_path then
         return
     end
 
     -- Save the current buffer
-    if save_first then
+    if conf.save_first then
         vim.cmd("w")
     end
 
-    local command = get_run_command(file_path)
+    local command = get_run_command(file_path, conf)
     if not command then
         return
     end
@@ -67,14 +80,16 @@ function M.run_in_last_terminal(save_first)
     vim.cmd("TermExec cmd='" .. command .. "'")
 end
 
+--- Set up the commands for tt-coderunner
+---@param conf table The configuration for tt-coderunner
 local function setup_commands(conf)
     local command = vim.api.nvim_create_user_command
 
     command("RunInTerminal", function(args)
         if args.count == 0 then
-            M.run_in_last_terminal(conf.save_first)
+            M.run_in_last_terminal(conf)
         else
-            M.run_in_terminal(args.count, conf.save_first)
+            M.run_in_terminal(args.count, conf)
         end
     end
     , { count = true, nargs = 0 })
