@@ -42,15 +42,13 @@ vim.api.nvim_set_keymap('n', '<leader>r3', ':3RunInTerminal<CR>', { noremap = tr
 Using `which-key`:
 ```lua
 local wk = require("which-key")
-wk.register({
-    ["<leader>r"] = {
-        name = "Code[r]unner",
-        r = {":RunInTerminal<CR>", "Run in Terminal"},
-        ["1"] = {":1RunInTerminal<CR>", "Run in Terminal 1"},
-        ["2"] = {":2RunInTerminal<CR>", "Run in Terminal 2"},
-        ["3"] = {":3RunInTerminal<CR>", "Run in Terminal 3"},
-        ...
-    }
+wk.add({
+    { "<leader>r",  group = "Code Runner" },
+    { "<leader>rr", ":RunInTerminal<CR>",  desc = "Run Code" },
+    { "<leader>r1", ":1RunInTerminal<CR>", desc = "Run Code in Terminal 1" },
+    { "<leader>r2", ":2RunInTerminal<CR>", desc = "Run Code in Terminal 2" },
+    { "<leader>r3", ":3RunInTerminal<CR>", desc = "Run Code in Terminal 3" },
+    { "<leader>r4", ":4RunInTerminal<CR>", desc = "Run Code in Terminal 4" },
+    { "<leader>r5", ":5RunInTerminal<CR>", desc = "Run Code in Terminal 5" },
 })
 ```
-
