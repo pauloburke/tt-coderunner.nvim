@@ -34,8 +34,8 @@ local function get_run_command(file_path, conf)
     end
 end
 
---- Run the current file in a specified terminal
----@param term_num number The terminal number to run the command in
+--- Run the current file in a terminal
+---@param term_num number? The terminal number to run the command in
 ---@param conf table The configuration for tt-coderunner
 function M.run_in_terminal(term_num, conf)
     local file_path = get_file_path()
@@ -53,29 +53,13 @@ function M.run_in_terminal(term_num, conf)
         return
     end
 
-    vim.cmd(term_num .. "TermExec cmd='" .. command .. "'")
-end
-
---- Run the current file in the last active terminal
---- @param conf table The configuration for tt-coderunner
-function M.run_in_last_terminal(conf)
-    local file_path = get_file_path()
-    if not file_path then
-        return
+    if term_num == nil or term_num == 0 then
+        -- Use the current terminal
+        vim.cmd("TermExec cmd='" .. command .. "'")
+    else
+        -- Use the specified terminal
+        vim.cmd(term_num .. "TermExec cmd='" .. command .. "'")
     end
-
-    -- Save the current buffer
-    if conf.save_first then
-        vim.cmd("w")
-    end
-
-    local command = get_run_command(file_path, conf)
-    if not command then
-        return
-    end
-
-    -- Execute the command in the last active terminal
-    vim.cmd("TermExec cmd='" .. command .. "'")
 end
 
 --- Set up the commands for tt-coderunner
@@ -84,11 +68,7 @@ local function setup_commands(conf)
     local command = vim.api.nvim_create_user_command
 
     command("RunInTerminal", function(args)
-        if args.count == 0 then
-            M.run_in_last_terminal(conf)
-        else
-            M.run_in_terminal(args.count, conf)
-        end
+        M.run_in_terminal(args.count, conf)
     end
     , { count = true, nargs = 0 })
 end
