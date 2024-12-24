@@ -95,9 +95,15 @@ local function setup_commands(conf)
     , { count = true, nargs = 0 })
 end
 
+local function set_config(user_conf)
+    user_conf = user_conf or {}
+    config = vim.tbl_deep_extend("force", config, user_conf)
+    return config
+end
+
 function M.setup(user_config)
     -- Set the user configuration
-    local conf = config.set(user_config)
+    local conf = set_config(user_config) or config
 
     -- Ensure ToggleTerm is loaded
     local ok, _ = pcall(require, "toggleterm")
